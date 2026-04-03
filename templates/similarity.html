@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Similarity Calculator - GO Analysis System{% endblock %}
+
+{% block content %}
+<h2>Gene Similarity Calculator</h2>
+<p>Compare two genes based on their shared GO annotations.</p>
+
+<!-- Similarity form -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="{{ url_for('similarity') }}" method="post">
+            <div class="row mb-3">
+                <!-- Gene A input -->
+                <div class="col-md-4">
+                    <label for="gene_a" class="form-label">Gene A</label>
+                    <input type="text" class="form-control" id="gene_a" name="gene_a"
+                           value="{{ gene_a }}"
+                           placeholder="e.g. TP53" required>
+                </div>
+
+                <!-- Gene B input -->
+                <div class="col-md-4">
+                    <label for="gene_b" class="form-label">Gene B</label>
+                    <input type="text" class="form-control" id="gene_b" name="gene_b"
+                           value="{{ gene_b }}"
+                           placeholder="e.g. BRCA1" required>
+                </div>
+
+                <!-- Method dropdown -->
+                <div class="col-md-4">
+                    <label for="method" class="form-label">Method</label>
+                    <select class="form-select" id="method" name="method">
+                        <option value="jaccard" {% if method == 'jaccard' %}selected{% endif %}>
+                            Jaccard Index
+                        </option>
+                        <option value="overlap" {% if method == 'overlap' %}selected{% endif %}>
+                            Overlap Coefficient
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Calculate Similarity</button>
+        </form>
+    </div>
+</div>
+
+<!-- Result section -->
+{% if result %}
+    <div class="alert alert-success">
+        <h5>Result</h5>
+        <p>
+            Similarity between <strong>{{ result.gene_a }}</strong> and
+            <strong>{{ result.gene_b }}</strong>
+            using <strong>{{ result.method }}</strong>:
+            <span class="display-6">{{ result.score }}</span>
+        </p>
+    </div>
+{% endif %}
+
+<!-- Explanation of methods -->
+<div class="card">
+    <div class="card-header">
+        <h5>About the Similarity Methods</h5>
+    </div>
+    <div class="card-body">
+        <h6>Jaccard Index</h6>
+        <p>
+            Measures similarity as the size of the intersection divided by the
+            size of the union of the two sets of GO terms. A score of 1.0 means
+            the genes share exactly the same GO terms; 0.0 means no overlap.
+        </p>
+        <p><code>J(A, B) = |A &cap; B| / |A &cup; B|</code></p>
+
+        <h6>Overlap Coefficient</h6>
+        <p>
+            Measures similarity as the size of the intersection divided by the
+            size of the smaller set. This is useful when one gene has many more
+            annotations than the other.
+        </p>
+        <p><code>Overlap(A, B) = |A &cap; B| / min(|A|, |B|)</code></p>
+    </div>
+</div>
+{% endblock %}

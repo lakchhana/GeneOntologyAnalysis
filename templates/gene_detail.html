@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}{{ symbol }} - GO Analysis System{% endblock %}
+
+{% block content %}
+<h2>Gene: {{ symbol }}</h2>
+
+<!-- Namespace filter dropdown -->
+<form action="{{ url_for('gene_detail', symbol=symbol) }}" method="get" class="mb-3">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <label for="namespace" class="form-label"><strong>Filter by namespace:</strong></label>
+        </div>
+        <div class="col-auto">
+            <select name="namespace" id="namespace" class="form-select"
+                    onchange="this.form.submit()">
+                <option value="All" {% if namespace_filter == 'All' %}selected{% endif %}>All</option>
+                <option value="BP" {% if namespace_filter == 'BP' %}selected{% endif %}>Biological Process (BP)</option>
+                <option value="MF" {% if namespace_filter == 'MF' %}selected{% endif %}>Molecular Function (MF)</option>
+                <option value="CC" {% if namespace_filter == 'CC' %}selected{% endif %}>Cellular Component (CC)</option>
+            </select>
+        </div>
+    </div>
+</form>
+
+<!-- Annotations table -->
+{% if annotations %}
+    <p>Showing <strong>{{ annotations|length }}</strong> annotations:</p>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>GO ID</th>
+                <th>Term Name</th>
+                <th>Evidence Code</th>
+                <th>Aspect</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ann in annotations %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('term_detail', go_id=ann.go_id) }}">
+                        {{ ann.go_id }}
+                    </a>
+                </td>
+                <td>{{ ann.term_name }}</td>
+                <td>{{ ann.evidence_code }}</td>
+                <td>{{ ann.aspect }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="alert alert-info">
+        No annotations found for this gene with the selected filter.
+    </div>
+{% endif %}
+{% endblock %}

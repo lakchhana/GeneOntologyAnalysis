@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Home - GO Analysis System{% endblock %}
+
+{% block content %}
+<!-- Welcome section -->
+<div class="text-center mb-4">
+    <h1>Welcome to the Gene Ontology Analysis System</h1>
+    <p class="lead">
+        A web tool for exploring Gene Ontology (GO) terms, gene annotations,
+        and computing functional similarity between genes.
+    </p>
+</div>
+
+<!-- Statistics cards row -->
+<div class="row mb-4">
+    <!-- Total GO Terms card -->
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Total GO Terms</h5>
+                <p class="card-text display-6">{{ total_terms }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Annotations card -->
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Total Annotations</h5>
+                <p class="card-text display-6">{{ total_annotations }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Genes card -->
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Total Genes</h5>
+                <p class="card-text display-6">{{ total_genes }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick search form -->
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Quick Search</h5>
+        <p class="card-text">Search for a GO term by name or ID:</p>
+        <form action="{{ url_for('search_term') }}" method="get">
+            <div class="input-group">
+                <input type="text" class="form-control" name="q"
+                       placeholder="e.g. apoptotic process or GO:0006915">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

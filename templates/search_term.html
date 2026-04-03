@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Search GO Terms - GO Analysis System{% endblock %}
+
+{% block content %}
+<h2>Search GO Terms</h2>
+
+<!-- Search form -->
+<form action="{{ url_for('search_term') }}" method="get" class="mb-4">
+    <div class="input-group">
+        <input type="text" class="form-control" name="q"
+               value="{{ query }}"
+               placeholder="Enter GO term name or ID (e.g. apoptosis, GO:0006915)">
+        <button class="btn btn-primary" type="submit">Search</button>
+    </div>
+</form>
+
+<!-- Results section -->
+{% if query %}
+    {% if results %}
+        <p>Found <strong>{{ results|length }}</strong> results for "{{ query }}":</p>
+
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>GO ID</th>
+                    <th>Name</th>
+                    <th>Namespace</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for term in results %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('term_detail', go_id=term.go_id) }}">
+                            {{ term.go_id }}
+                        </a>
+                    </td>
+                    <td>{{ term.name }}</td>
+                    <td>{{ term.namespace }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            No terms found for "{{ query }}".
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

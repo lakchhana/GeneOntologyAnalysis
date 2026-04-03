@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics - GO Analysis System{% endblock %}
+
+{% block content %}
+<h2>Statistics Dashboard</h2>
+
+<!-- Charts row -->
+<div class="row mb-4">
+    <!-- Bar chart: annotations per namespace -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Annotations per Namespace</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="namespaceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pie chart: evidence code distribution -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Evidence Code Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="evidenceChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gene-Term Matrix Summary (NumPy) -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Gene-Term Matrix (NumPy Analysis)</h5>
+            </div>
+            <div class="card-body">
+                <p>
+                    A binary matrix was built for the top {{ stats.matrix.num_genes }} most-annotated genes.
+                    Each row is a gene and each column is a GO term.
+                    A cell contains 1 if the gene is annotated with that term, 0 otherwise.
+                </p>
+                <table class="table table-bordered" style="max-width: 500px;">
+                    <tbody>
+                        <tr>
+                            <th>Matrix shape</th>
+                            <td>{{ stats.matrix.num_genes }} genes &times; {{ stats.matrix.num_terms }} terms</td>
+                        </tr>
+                        <tr>
+                            <th>Non-zero entries</th>
+                            <td>{{ stats.matrix.total_ones }}</td>
+                        </tr>
+                        <tr>
+                            <th>Matrix density</th>
+                            <td>{{ "%.2f" | format(stats.matrix.density * 100) }}%</td>
+                        </tr>
+                        <tr>
+                            <th>Avg GO terms per gene</th>
+                            <td>{{ stats.matrix.avg_annotations_per_gene }}</td>
+                        </tr>
+                        <tr>
+                            <th>Avg genes per GO term</th>
+                            <td>{{ stats.matrix.avg_genes_per_term }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cosine Similarity between top genes (NumPy) -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Top 10 Most Similar Gene Pairs (Cosine Similarity via NumPy)</h5>
+            </div>
+            <div class="card-body">
+                <p>
+                    Cosine similarity is computed from the binary gene-term matrix
+                    using NumPy vector operations (dot product and L2 norm).
+                    A score of 1.0 means the two genes share exactly the same GO terms.
+                </p>
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Gene A</th>
+                            <th>Gene B</th>
+                            <th>Cosine Similarity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pair in stats.cosine_pairs %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <a href="{{ url_for('gene_detail', symbol=pair.gene_a) }}">
+                                    {{ pair.gene_a }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('gene_detail', symbol=pair.gene_b) }}">
+                                    {{ pair.gene_b }}
+                                </a>
+                            </td>
+                            <td>{{ pair.score }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tables row -->
+<div class="row">
+    <!-- Top 10 most annotated genes -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Top 10 Most Annotated Genes</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Gene Symbol</th>
+                            <th>Annotation Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for gene in stats.top_genes %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <a href="{{ url_for('gene_detail', symbol=gene.symbol) }}">
+                                    {{ gene.symbol }}
+                                </a>
+                            </td>
+                            <td>{{ gene.count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top 10 most used GO terms -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Top 10 Most Used GO Terms</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>GO ID</th>
+                            <th>Name</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for term in stats.top_terms %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <a href="{{ url_for('term_detail', go_id=term.go_id) }}">
+                                    {{ term.go_id }}
+                                </a>
+                            </td>
+                            <td>{{ term.name }}</td>
+                            <td>{{ term.count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+    // -------------------------------------------------------------------
+    // Bar chart: Annotations per Namespace
+    // -------------------------------------------------------------------
+    // Get the data from Flask (passed as JSON strings in the template)
+    var namespaceLabels = {{ namespace_labels | safe }};
+    var namespaceValues = {{ namespace_values | safe }};
+
+    var ctx1 = document.getElementById('namespaceChart').getContext('2d');
+    var namespaceChart = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: namespaceLabels,
+            datasets: [{
+                label: 'Number of Annotations',
+                data: namespaceValues,
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(75, 192, 192, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // -------------------------------------------------------------------
+    // Pie chart: Evidence Code Distribution
+    // -------------------------------------------------------------------
+    var evidenceLabels = {{ evidence_labels | safe }};
+    var evidenceValues = {{ evidence_values | safe }};
+
+    // Colors for the pie chart slices
+    var pieColors = [
+        'rgba(255, 99, 132, 0.7)',
+        'rgba(54, 162, 235, 0.7)',
+        'rgba(255, 206, 86, 0.7)',
+        'rgba(75, 192, 192, 0.7)',
+        'rgba(153, 102, 255, 0.7)',
+        'rgba(255, 159, 64, 0.7)',
+        'rgba(199, 199, 199, 0.7)'
+    ];
+
+    var ctx2 = document.getElementById('evidenceChart').getContext('2d');
+    var evidenceChart = new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: evidenceLabels,
+            datasets: [{
+                data: evidenceValues,
+                backgroundColor: pieColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

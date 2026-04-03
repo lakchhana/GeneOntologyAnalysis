@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Search Genes - GO Analysis System{% endblock %}
+
+{% block content %}
+<h2>Search Genes</h2>
+
+<!-- Search form -->
+<form action="{{ url_for('search_gene') }}" method="get" class="mb-4">
+    <div class="input-group">
+        <input type="text" class="form-control" name="q"
+               value="{{ query }}"
+               placeholder="Enter gene symbol (e.g. TP53, BRCA1)">
+        <button class="btn btn-primary" type="submit">Search</button>
+    </div>
+</form>
+
+<!-- Results section -->
+{% if query %}
+    {% if results %}
+        <p>Found <strong>{{ results|length }}</strong> genes matching "{{ query }}":</p>
+
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Gene Symbol</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for gene in results %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('gene_detail', symbol=gene) }}">
+                            {{ gene }}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            No genes found matching "{{ query }}".
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

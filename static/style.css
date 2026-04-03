@@ -1,0 +1,54 @@
+/*
+ * Gene Ontology Analysis System - Custom Styles
+ * ==============================================
+ * Simple styles to complement Bootstrap 5.
+ * Bootstrap does most of the heavy lifting — these are just small tweaks.
+ */
+
+body {
+    padding-bottom: 20px;
+    background-color: #f8f9fa;
+}
+
+/* Give cards a subtle shadow for depth */
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* Make table headers slightly more readable */
+.table thead th {
+    font-weight: 600;
+}
+
+/* Style links inside tables to stand out */
+.table a {
+    text-decoration: none;
+    color: #0d6efd;
+}
+
+.table a:hover {
+    text-decoration: underline;
+}
+
+/* Make the stat numbers on the homepage bigger */
+.display-6 {
+    color: #0d6efd;
+    font-weight: bold;
+}
+
+/* Add spacing around the navbar brand */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+/* Footer styling */
+footer p {
+    font-size: 0.9rem;
+}
+
+/* Similarity result score styling */
+.alert .display-6 {
+    color: #198754;
+}
